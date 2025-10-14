@@ -5,7 +5,7 @@ import cors from "cors";
 import connectDB from "./config/db.ts";
 import morgan from "morgan"; 
 import swagger from "swagger-ui-express";
-// import swaggerSpec from "./services/swagger.ts";
+import swaggerSpec from "./services/swagger.ts";
 // import employeeRouter from "./Routes/employee.routes.ts";
 
 dotenv.config();
