@@ -27,6 +27,32 @@ export const acceptRide = async (req: Request, res: Response, next: NextFunction
         next(err);
     }
     };
+export const completeRide = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const rideId = req.params.id;
+    const driverId = (req as any).user?.id;
+    if (!driverId)
+      return res.status(401).json({ message: "Unauthorized" });
+
+    const ride = await rideService.completeRide(rideId, driverId);
+    res.json({ message: "Ride completed successfully", data: ride });
+  } catch (err) {
+    next(err);
+  }
+};
+  export const cancelRide = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const rideId = req.params.id;
+    const riderId = (req as any).user?.id;
+    if (!riderId)
+      return res.status(401).json({ message: "Unauthorized" });
+
+    const ride = await rideService.cancelRide(rideId, riderId);
+    res.json({ message: "Ride cancelled successfully", data: ride });
+  } catch (err) {
+    next(err);
+  }
+};
 
 
     // export const completeRide;
