@@ -4,7 +4,7 @@
     // File Layout
     "rootDir": "./src",
     "outDir": "./dist",
-    "module":"NodeNext",
+    "module":"Next",
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module

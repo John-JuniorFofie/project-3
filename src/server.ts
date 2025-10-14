@@ -4,8 +4,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/db.ts";
 import morgan from "morgan"; 
-// Swagger and employee routes are not yet present in the repo. Comment them out to avoid runtime errors.
-// import swagger from "swagger-ui-express";
+import swagger from "swagger-ui-express";
 // import swaggerSpec from "./services/swagger.ts";
 // import employeeRouter from "./Routes/employee.routes.ts";
 
