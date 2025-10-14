@@ -1,11 +1,8 @@
-import mongoose, {Schema, Document,Model, Types} from "mongoose";
+import mongoose, {Schema, Document,Model, Types, model} from "mongoose";
 
 export type RideStatus = "requested" | "accepted" | "in_progress" | "completed" | "cancelled";
 
 export type Ride = Document & {
-  fullName: string;
-  email: string;
-  phone: string;
     rider:Types.ObjectId;
   driver?: Types.ObjectId | null;
   pickup: {
@@ -37,19 +34,6 @@ const geoPoint ={
 };
 
 const RideSchema: Schema<Ride> = new Schema({
-    fullName:{
-        type: String,
-        required: true, 
-    },
-    email:{
-        type: String,
-        required: true,
-    },
-    phone:{
-        type: String,
-        required: true,
-    },
-
     rider:{
         type: Schema.Types.ObjectId,
         ref: "User",
@@ -62,6 +46,31 @@ const RideSchema: Schema<Ride> = new Schema({
         default: null,
     },
     pickup: {
-    
-})
+        ...geoPoint,
+        required: true,
+    },
+    dropoff: {
+        ...geoPoint,
+        required: true,
 
+    },
+    status:{
+        type:String,
+        enum:["requested", "accepted", "in_progress", "completed", "cancelled"],
+        default: "requested",
+    },
+    fare:Number,
+    notes: String,
+    requestedAt:{
+        type: Date,
+        default: Date.now,
+    },
+    updatedAt: Date,
+    completedAt:{ 
+        type: Date, 
+    },     
+},{timestamps:true});
+RideSchema.index({pickup:"2dsphere"});
+RideSchema.index({status:1, driver:1});
+
+export default model<Ride>("Ride", RideSchema);
