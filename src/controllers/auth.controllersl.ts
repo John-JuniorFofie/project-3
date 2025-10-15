@@ -9,4 +9,17 @@ import {SendEmail} from '../Utils/email.transporter';
 
 require ('dotenv').config();
 
+//JWT 
+const {ACCESS_TOKEN_SECRET} = process.env;
+
+if(!ACCESS_TOKEN_SECRET){
+    throw new Error("ACCESS_TOKEN_SECRET is not defined in .env")
+
+}
+
+//@route POST/api/vi/auth/signUp
+//@desc Sign Up user (create user and hash password)
+//@acces public 
+
+
 

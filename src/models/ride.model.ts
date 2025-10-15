@@ -1,18 +1,18 @@
-import mongoose, {Schema, Document,Model, Types, model} from "mongoose";
+import  {Schema, Document, Model} from "mongoose";
 
-export type RideStatus = "requested" | "accepted" | "in_progress" | "completed" | "cancelled";
+import   {RideStatus} from "../types/ride.types";
 
-export type Ride = Document & {
-    rider:Types.ObjectId;
-  driver?: Types.ObjectId | null;
-  pickup: {
-    type: "point";
-    coordinates: [number, number]; // [longitude, latitude]
-  }
-  dropoff: { 
-    type: "point";
-    coordinates: [number, number]; // [longitude, latitude]
-    }
+export interface IRide extends Document {
+    rider: Schema.Types.ObjectId;   
+    driver?: Schema.Types.ObjectId | null;
+     pickup: "String"; //{
+//     type: "point";
+//     coordinates: [number, number]; // [longitude, latitude]
+//   }
+  dropoff:"String"; //{ 
+    // type: "point";
+    // coordinates: [number, number]; // [longitude, latitude]
+    //}
     status: RideStatus;
     fare?: number;
     notes?:string;
@@ -33,26 +33,29 @@ const geoPoint ={
     }
 };
 
-const RideSchema: Schema<Ride> = new Schema({
+const RideSchema = new Schema<IRide>({
     rider:{
         type: Schema.Types.ObjectId,
         ref: "User",
         required: true,
+        index:true,
+
     },
     driver:{
         type: Schema.Types.ObjectId,
         ref: "User",
         required:false,
-        default: null,
+        // default: null,
     },
     pickup: {
-        ...geoPoint,
+        // ...geoPoint,
+        type:String,
         required: true,
     },
     dropoff: {
-        ...geoPoint,
+        // ...geoPoint,
+        type:String,
         required: true,
-
     },
     status:{
         type:String,
@@ -69,8 +72,12 @@ const RideSchema: Schema<Ride> = new Schema({
     completedAt:{ 
         type: Date, 
     },     
-},{timestamps:true});
-RideSchema.index({pickup:"2dsphere"});
-RideSchema.index({status:1, driver:1});
+},
+{
+    timestamps:true
+}
+);
+// RideSchema.index({pickup:"2dsphere"});
+// RideSchema.index({status:1, driver:1});
 
-export default model<Ride>("Ride", RideSchema);
+export const Ride = model<IRide>("Ride", RideSchema);
