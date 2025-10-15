@@ -4,7 +4,7 @@ import {
   acceptRide,
   completeRide,
   cancelRide,
-} from "./controllers/ride.controllers;
+} from "../controllers/ride.controllers.ts";
 
 const router = Router();
 
