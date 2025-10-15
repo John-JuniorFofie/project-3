@@ -1,22 +1,24 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
+import {UserRole} from "../types/authRequest";
 
-export type Role = "rider" | "driver";
+// export type Role = "rider" | "driver";
+
 
 export interface IUser extends Document {
-    name: string;
+    fullName: string;
     email: string;
     password: string;
-    role: Role;
+    role: UserRole;
     phoneNumber?:String;
     isAvaialable?: boolean; // For drivers
-    currentLocatoin?:{
-        type: "Point";
-        coordinates: [number, number]; // [longitude, latitude]
-    };
+    // currentLocatoin?:{
+    //     type: "Point";
+    //     coordinates: [number, number]; // [longitude, latitude]
+    // };
     }
 
 const userSchema =new Schema<IUser>({
-    name:{
+    fullName:{
         type: String,
         required: true,
         trim: true,
@@ -31,6 +33,7 @@ const userSchema =new Schema<IUser>({
     password:{
         type: String,
         required: true,
+        select:false,
     },
     role:{
         type: String,
@@ -46,14 +49,14 @@ const userSchema =new Schema<IUser>({
         type: Boolean,
         default: false,
     },
-    currentLocatoin:{
-        type: {
-            type: String,
-            enum: ["Point"],
-            default: "Point",
-    },
-    coordinates:{
-        type:[Number], index:"2dsphere"}
-    }
+    // currentLocation:{
+    //     type: {
+    //         type: String,
+    //         enum: ["Point"],
+    //         default: "Point",
+    // },
+    // coordinates:{
+    //     type:[Number], index:"2dsphere"}
+    // }
 },{timestamps:true});
 export default mongoose.model<IUser>("User", userSchema);
