@@ -4,7 +4,7 @@ import {AuthRequest} from '../types/authRequest'
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 
-const dotenv=dotenv.config();
+dotenv.config();
 
 
 //create account
