@@ -1,5 +1,5 @@
 import  {Schema, Document, Model} from "mongoose";
-import   {RideStatus} from "../types/ride.types";
+import   type{RideStatus} from "../types/ride.types.ts";
 
 export interface IRide extends Document {
     rider: Schema.Types.ObjectId;   
@@ -58,7 +58,7 @@ const RideSchema = new Schema<IRide>({
     },
     status:{
         type:String,
-        enum:["requested", "accepted", "in_progress", "completed", "cancelled"],
+        enum:["requested", "accepted", "completed", "cancelled","statusChecked"],
         default: "requested",
     },
     fare:Number,
@@ -79,4 +79,4 @@ const RideSchema = new Schema<IRide>({
 // RideSchema.index({pickup:"2dsphere"});
 // RideSchema.index({status:1, driver:1});
 
-export const Ride = model<IRide>("Ride", RideSchema);
+export const Ride = Model<IRide>("Ride", RideSchema);

@@ -1,10 +1,10 @@
 import type {Request, Response} from 'express';
 import {Ride} from '../models/ride.model.ts';
-import {AuthRequest} from "../types/authRequest";
+import type{AuthRequest} from "../types/authRequest.ts";
 import {Schema, Types} from 'mongoose';
 
 
- export const requestRide = async (req: Request, res: Response, next: NextFunction) => {
+ export const requestRide = async (req: Request, res: Response, next: Function) => {
     try {
      const {pickuplocation, dropofflocation} = req.body;
      const userId = req.user?.userId;
@@ -89,7 +89,7 @@ export const completeRide = async (req: AuthRequest, res: Response): Promise<voi
       });
 
     const ride = await Ride.findId(rideId);
-    if(!ride || !ride.status !== 'in_progress'){
+    if(!ride || !ride.status !== "in_progress"){
       res.status(404).json({
         success:false,
         message:"Ride not in progress please start a ride first."
