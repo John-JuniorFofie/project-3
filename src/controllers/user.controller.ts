@@ -24,6 +24,16 @@ const {ACCESS_TOKEN_SECRET} = process.env;
         role,
         phoneNumber
 });
+//Input validation
+if(!name || email || password || role || phoneNumber){
+    res.status(400).json({
+        success:false,
+        message:"fill all required fields"
+    });
+}
+//check for existing user
+const existingUser = await User.findOne
+
 await newUser.save();
 
 res.status(201).json({
@@ -39,7 +49,7 @@ res.status(201).json({
 };
 
 //logIn User
-export const loigIn = async  (req:Request, res:Response)=>{
+export const logIn = async  (req:Request, res:Response)=>{
     try{
         const {name, role, phoneNumber}= req.body;
         if(!name || !role|| !phoneNumber|| ){
