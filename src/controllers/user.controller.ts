@@ -6,8 +6,13 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+//JWT secret 
+const {ACCESS_TOKEN_SECRET} = process.env;
 
 //create account
+//@desc create new user
+//@route POST /api/users/register
+//@access public
 
     export const createAccount = async (req:Request, res:Response)=>{
     try{
