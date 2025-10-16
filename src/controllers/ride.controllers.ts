@@ -1,22 +1,41 @@
-import type { Request, Response, NextFunction } from "express";
-import { requestRideSchema } from "../schemas/ride.schema";
-import  rideService from "../services/ride.service";
+import type {Request, Response} from 'express';
+import {Ride} from '../models/ride.model.ts';
+import {AuthRequest} from "../types/authRequest";
+import {Schema, Types} from 'mongoose';
 
 
  export const requestRide = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const payload = requestRideSchema.parse(req.body);
-        const riderId = (req as any).user?.id;
-        if (!riderId)
-        return res.status(401).json({ message: "Unauthorized" });
-        const ride = await rideService.createRide(riderId, payload);
-        res.status(201).json({ data: ride });
-        } catch (err) {
-        next(err);
+     const {pickuplocation, dropofflocation} = req.body;
+     const userId = req.user?.userId;
+
+     if (!pickuplocation  || dropofflocation){
+      res.status(400).json({
+        success:false,
+        message:"pickuplocation and dropofflocation are required"
+      });
+      return;
+     }
+     const ride = await Ride.create(
+      {
+        pickupLocation:pickuplocation,
+        dropOffLocation: dropofflocation,
+        rider:userId,
+      }
+     )
+     res.status(200).json({
+      success:true,
+      message:"Ride requested successfully.",
+      data:ride
+     })
+    }catch (error){
+      console.log({message: "Error requesting ride", error});
+      res.status(500).json({success:false, error: "internal server error"})
     }
-    };
+    }
 
-
+//@route PATCH /api/vi/rides6/:qid/accept
+//@desc Driver accepts ride (driver only),  
 export const acceptRide = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const rideId = req.params.id;
