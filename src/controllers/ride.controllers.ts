@@ -35,43 +35,201 @@ import {Schema, Types} from 'mongoose';
     }
 
 //@route PATCH /api/vi/rides6/:qid/accept
-//@desc Driver accepts ride (driver only),  
-export const acceptRide = async (req: Request, res: Response, next: NextFunction) => {
+//@desc Driver accepts ride (driver only), 
+//@access Private 
+export const acceptRide = async (req: AuthRequest, res: Response):Promise<void> => {
     try {
         const rideId = req.params.id;
-        const driverId = (req as any).user?.id;
-        const ride = await rideService.acceptRide(rideId, driverId);
-        res.json({ data: ride });
-        } catch (err) {
-        next(err);
+        const UserId = req .user?.id;
+        
+
+        if(!rideId || !UserId){
+          res.status(400).json({
+            success:false,
+            message: "provide RideId and UserId"
+          });
+          return;
+        }
+        rideId.status = "accepted";
+        Ride.driver = UserId as any;
+        await Ride.save();
+
+        res.status(200).json({
+          success:true,
+          message:"Ride accepted successfully",
+          data:Ride
+        })
+        
+    }catch(error){
+      console.log({
+        message:"Error accepting ride", error
+      })
+      res.status(500).json({
+        success:false,
+        error:"Internal server error"
+      })
+      return;
     }
     };
-export const completeRide = async (req: Request, res: Response, next: NextFunction) => {
+
+//@route PATCH /api/v1/rides'/:/start
+//@desc... driver end/complete (driver only)
+//@Acess Private
+
+
+export const completeRide = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const rideId = req.params.id;
-    const driverId = (req as any).user?.id;
-    if (!driverId)
-      return res.status(401).json({ message: "Unauthorized" });
+    const userId = req.user?.id;
+    
+    if (!rideId || !userId)
+      res.status(401).json({ 
+        success:false,
+        message: "Provide RideId and UserId" 
+      });
 
-    const ride = await rideService.completeRide(rideId, driverId);
-    res.json({ message: "Ride completed successfully", data: ride });
-  } catch (err) {
-    next(err);
+    const ride = await Ride.findId(rideId);
+    if(!ride || !ride.status !== 'in_progress'){
+      res.status(404).json({
+        success:false,
+        message:"Ride not in progress please start a ride first."
+      });
+      return;
+    }
+    ride.status ='completed';
+     await ride.save();
+
+
+    res.status(200).json({ 
+      success:true,
+      message: "Ride completed successfully", 
+      data: ride 
+    });
+   
+  } catch (error) {
+    console.log({message:"Error finishing ride", error});
+    res.status(500).json({
+      success:false,
+      error: "internal servre Rrror"
+    });
+    return;
   }
 };
-  export const cancelRide = async (req: Request, res: Response, next: NextFunction) => {
+
+//cancel ride
+ //@route PATCH /api/v1/rides'/:/cancel
+//@desc... users can cancel the ride
+//@Acess Public
+
+export const cancelRide = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const rideId = req.params.id;
-    const riderId = (req as any).user?.id;
-    if (!riderId)
-      return res.status(401).json({ message: "Unauthorized" });
+    const userId = req.user?.id;
 
-    const ride = await rideService.cancelRide(rideId, riderId);
-    res.json({ message: "Ride cancelled successfully", data: ride });
-  } catch (err) {
-    next(err);
+    if (!rideId || !userId) {
+      res.status(401).json({
+        success: false,
+        message: "Provide RideId and UserId",
+      });
+      return;
+    }
+
+    const ride = await Ride.findById(rideId);
+
+    if (!ride) {
+      res.status(404).json({
+        success: false,
+        message: "Ride not found",
+      });
+      return;
+    }
+
+    //  Check if ride is already completed or cancelled
+    if (ride.status === "completed" || ride.status === "cancelled") {
+      res.status(400).json({
+        success: false,
+        message: `Cannot cancel a ride that is already ${ride.status}`,
+      });
+      return;
+    }
+
+    //  Allow only rider or driver who created the ride to cancel
+    if (ride.rider.toString() !== userId && ride.driver?.toString() !== userId) {
+      res.status(403).json({
+        success: false,
+        message: "You are not authorized to cancel this ride",
+      });
+      return;
+    }
+
+  
+    ride.status = "cancelled";
+    ride.updatedAt = new Date();
+    await ride.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Ride cancelled successfully",
+      data: ride,
+    });
+  } catch (error) {
+    console.error({ message: "Error cancelling ride", error });
+    res.status(500).json({
+      success: false,
+      error: "Internal Server Error",
+    });
   }
 };
 
+  //get ridehistory
+ //@route PATCH /api/v1/rides'/:/cancel
+//@desc... users check ride history
+// //@Acess Public
+export const getRideHistory = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user?.id;
+    const userRole = req.user?.role; // assuming your JWT contains a "role" like 'driver' or 'rider'
 
-    // export const completeRide;
+    if (!userId || !userRole) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized user",
+      });
+    }
+
+    // Check role and fetch rides
+    let rides;
+    if (userRole === "rider") {
+      rides = await Ride.find({ rider: userId }).sort({ createdAt: -1 });
+    } else if (userRole === "driver") {
+      rides = await Ride.find({ driver: userId }).sort({ createdAt: -1 });
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user role",
+      });
+    }
+
+    if (!rides || rides.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No ride history found",
+        data: [],
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Ride history fetched successfully",
+      data: rides,
+    });
+  } catch (error) {
+    console.error("Error fetching ride history:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+    

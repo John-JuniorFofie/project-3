@@ -1,5 +1,4 @@
 import  {Schema, Document, Model} from "mongoose";
-
 import   {RideStatus} from "../types/ride.types";
 
 export interface IRide extends Document {

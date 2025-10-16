@@ -1,6 +1,11 @@
 import type {Request, Response} from "express";
-
 import userSchema from "../models/user.model.ts"
+import {AuthRequest} from '../types/authRequest'
+import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
+
+const dotenv=dotenv.config();
+
 
 //create account
 
@@ -32,7 +37,7 @@ res.status(201).json({
 export const loigIn = async  (req:Request, res:Response)=>{
     try{
         const {name, role, phoneNumber}= req.body;
-        if(!name || !role|| !phoneNumber||){
+        if(!name || !role|| !phoneNumber|| ){
             res.status(500).json({
                 success:false,
                 message:"please provide the correct credentials"
