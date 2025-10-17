@@ -1,11 +1,9 @@
 import type{Request, Response} from 'express';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
-import type{User} from '../models/user.model.ts';
-import generateOTP from '../utils/OTP';
-import OTPVerification from '../models/OTPVerification.model';
-import {CustomJwtPayload} from '../types/authRequest';
-import {sendEmail} from '../utils/email.transporter';
+import bcrypt from 'bcrypt';
+import User from '../models/user.model.ts';
+import type{CustomJwtPayload} from '../types/authRequest.ts';
+
 
 require('dotenv').config();
 
@@ -29,7 +27,7 @@ export const register = async ( req: Request, res: Response): Promise<void> => {
             email,
             password,
             role,
-            isAccountDeleted } = req.body;
+            isAccountDeleted} = req.body;
 
         //Validation
         if (!fullName || !email || !password) {
@@ -57,35 +55,35 @@ export const register = async ( req: Request, res: Response): Promise<void> => {
         }
 
         //Check for existing username
-        const Username = await User.findOne({ userName });
-        if (Username) {
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
             res.status(400).json({
                 success: false,
-                message: "Username already taken"
+                message: "User already exists, try logging in."
             });
             return
         }
 
         //Check for existing user
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            //Restore the user's account if it was deleted
-            if (existingUser.isAccountDeleted) {
-                existingUser.isAccountDeleted = false;
-                await existingUser.save();
+        // const existingUser = await User.findOne({ email });
+        // if (existingUser) {
+        //     //Restore the user's account if it was deleted
+        //     if (existingUser.isAccountDeleted) {
+        //         existingUser.isAccountDeleted = false;
+        //         await existingUser.save();
 
-                res.status(200).json({
-                    success: true,
-                    message: 'Account restored successfully. Please log in.',
-                });
-                return;
-            }
-            res.status(400).json({
-                success: false,
-                message: 'User already exists, try logging in.',
-            });
-            return;
-        }
+        //         res.status(200).json({
+        //             success: true,
+        //             message: 'Account restored successfully. Please log in.',
+        //         });
+        //         return;
+        //     }
+        //     res.status(400).json({
+        //         success: false,
+        //         message: 'User already exists, try logging in.',
+        //     });
+        //     return;
+        // }
 
         //Hash Password
         const salt = await bcrypt.genSalt(10);
@@ -98,7 +96,7 @@ export const register = async ( req: Request, res: Response): Promise<void> => {
             email,
             password: hashedPassword,
             role,
-            isAccountDeleted
+            // isAccountDeleted
         });
 
         res.status(201).json({
@@ -140,13 +138,13 @@ export const login = async (req: Request, res: Response): Promise<void> => {
             return
         }
 
-        if (existingUser.isAccountDeleted) {
-            res.status(404).json({
-                success: false,
-                message: "Account has been deleted, please sign up again.",
-            });
-            return;
-        }
+        // if (existingUser.isAccountDeleted) {
+        //     res.status(404).json({
+        //         success: false,
+        //         message: "Account has been deleted, please sign up again.",
+        //     });
+        //     return;
+        // }
 
         //Check Password
         const validPassword = await bcrypt.compare(password, existingUser.password);
