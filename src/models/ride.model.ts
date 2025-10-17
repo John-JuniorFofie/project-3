@@ -79,4 +79,4 @@ const RideSchema = new Schema<IRide>({
 // RideSchema.index({pickup:"2dsphere"});
 // RideSchema.index({status:1, driver:1});
 
-export const Ride = Model<IRide>("Ride", RideSchema);
+export const Ride = model<IRide>("Ride", RideSchema);

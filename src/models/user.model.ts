@@ -1,5 +1,5 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
-import {UserRole} from "../types/authRequest";
+import type{UserRole} from "../types/authRequest.ts";
 
 // export type Role = "rider" | "driver";
 

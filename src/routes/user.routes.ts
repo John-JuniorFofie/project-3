@@ -6,8 +6,8 @@ import {
     updateProfile,
     userData,
 } from "../controllers/user.controller.ts";
-import type{ authMiddleware } from "../middlewares/authentication.middleware.ts";
-import type{ authorizedRoles } from "../middlewares/roles.middleware.ts";
+import type{ authenticate } from "../middlewares/auth.middleware.ts";
+import type{ authorizedRoles } from "../middlewares/rbac.middleware.ts";
 
 /**
  * @swagger
@@ -67,7 +67,7 @@ import type{ authorizedRoles } from "../middlewares/roles.middleware.ts";
 //@route GET /api/v1/status/profile
 //@desc Get Data/Profile/Details of Logged-in user (Get your own profile)
 //@access private
-router.get('/profile', authMiddleware, authorizedRoles("rider", "driver"), userData);
+router.get('/profile', authenticate, authorizedRoles("rider", "driver"), userData);
 
 
 /**
