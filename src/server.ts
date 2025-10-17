@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/db.ts";
 import morgan from "morgan"; 
+import rootRouter from "./routes/index.route.ts";
 import swagger from "swagger-ui-express";
 import swaggerSpec from "./services/swagger.ts";
 // import employeeRouter from "./Routes/employee.routes.ts";
@@ -33,9 +34,13 @@ app.use((req, res, next) => {
 });
 
 //Routes
+app.use("/api/v1", rootRouter);
 app.get("/", (req: Request, res: Response) => {
-  res.status(200).send("Apollonia HR Management System server is running ");
+  res.status(200).send("The server is running properly.");
 });
+
+
+
 
 // app.use("/api/v1", employeeRouter);
 

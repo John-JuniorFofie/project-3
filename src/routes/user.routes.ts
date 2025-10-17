@@ -6,8 +6,8 @@ import {
     updateProfile,
     userData,
 } from "../controllers/user.controller.ts";
-import type{ authenticate } from "../middlewares/auth.middleware.ts";
-import type{ authorizedRoles } from "../middlewares/rbac.middleware.ts";
+import { authenticate } from "../middlewares/auth.middleware.ts";
+import { authorizedRoles } from "../middlewares/rbac.middleware.ts";
 
 /**
  * @swagger
@@ -132,7 +132,7 @@ router.get('/profile', authenticate, authorizedRoles("rider", "driver"), userDat
 //@route PUT /api/v1/status/profile
 //@desc Update profile (fullName, userName, profileImage/avatar, bio/About, etc.)
 //@access private
-router.put('/profile', authMiddleware, authorizedRoles("rider", "driver"), updateProfile);
+router.put('/profile', authenticate, authorizedRoles("rider", "driver"), updateProfile);
 
 /**
  * @swagger
@@ -186,7 +186,7 @@ router.put('/profile', authMiddleware, authorizedRoles("rider", "driver"), updat
 //@route PUT /api/v1/status/update/password
 //@desc Change password (when logged in)
 //@access private
-router.put('/update/password', authMiddleware, authorizedRoles("rider", "driver"), changePassword);
+router.put('/update/password', authenticate, authorizedRoles("rider", "driver"), changePassword);
 
 /**
  * @swagger
@@ -220,7 +220,7 @@ router.put('/update/password', authMiddleware, authorizedRoles("rider", "driver"
 //@route DELETE	/api/v1/status/account/delete
 //@desc Deactivate/Delete account (Soft Delete)
 //@access private
-router.delete('/account/delete', authMiddleware, authorizedRoles("rider","driver"), deleteAccount);
+router.delete('/account/delete', authenticate, authorizedRoles("rider","driver"), deleteAccount);
 
 
 

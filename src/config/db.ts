@@ -5,7 +5,7 @@ dotenv.config();
 
 const connectDB = async (): Promise<void> => {
   try {
-    const uri = process.env.MONGO_URI ?? process.env.MONGO_URL;
+    const uri =  process.env.MONGO_URL;
     if (!uri) {
       throw new Error(
         'Missing MongoDB connection string: set MONGO_URI or MONGO_URL in your .env file'
