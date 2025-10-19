@@ -22,7 +22,7 @@ export const authorizedRoles = (...roles: string[])=>{
       });
       return;
     }
-    if (!roles.includes(role)){
+    if (!roles){
       res.status(403).json({
         success:false,
         message:"Forbidded: You are not allowed to acccess this resource "
