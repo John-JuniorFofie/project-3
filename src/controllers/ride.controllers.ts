@@ -1,4 +1,4 @@
-import type {Request, Response} from 'express';
+import type {Request, Response, NextFunction} from 'express';
 import {Ride} from '../models/ride.model.ts';
 import type{AuthRequest} from "../types/authRequest.ts";
 import {Schema, Types} from 'mongoose';
@@ -16,6 +16,7 @@ import {Schema, Types} from 'mongoose';
       });
       return;
      }
+     next();
      const ride = await Ride.create(
       {
         pickupLocation:pickuplocation,
@@ -33,6 +34,7 @@ import {Schema, Types} from 'mongoose';
       res.status(500).json({success:false, error: "internal server error"})
     }
     }
+    
 
 //@route PATCH /api/vi/rides6/:qid/accept
 //@desc Driver accepts ride (driver only), 
@@ -231,5 +233,6 @@ export const getRideHistory = async (req: AuthRequest, res: Response, next: Next
     });
   }
 };
+
 
     

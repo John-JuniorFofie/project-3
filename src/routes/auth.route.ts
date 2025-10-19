@@ -1,7 +1,7 @@
 import express from "express";
 const router = express.Router();
-import {register, login,} from "../controllers/authentication.controller.ts";
-import { otpRequestLimiter, otpVerifyLimiter } from '../middlewares/otpLimiter.middleware.ts'
+import {register, login,} from "../controllers/auth.controllers.ts";
+
 
 
 /**
