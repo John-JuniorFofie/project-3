@@ -1,18 +1,22 @@
-// import express from "express";
+import express from "express";
+import authRouter from "./auth.route.ts";
 // import userRouter from "./user.routes.ts";
 // import rideRouter from "./ride.routes.ts";
 
 
-// const rootRouter = express.Router();
+const rootRouter = express.Router();
 
 
+//auth routes
+rootRouter.use('/auth',authRouter);
 
-// //user routes
+
+//user routes
 // rootRouter.use('/status',userRouter);
 
-// //ride routes
+//ride routes
 // rootRouter.use('/rides',rideRouter);
 
 
 
-// export default rootRouter; 
+export default rootRouter; 

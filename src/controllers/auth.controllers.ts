@@ -96,7 +96,7 @@ export const register = async ( req: Request, res: Response): Promise<void> => {
             email,
             password: hashedPassword,
             role,
-            // isAccountDeleted
+            isAccountDeleted
         });
 
         res.status(201).json({

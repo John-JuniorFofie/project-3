@@ -1,10 +1,8 @@
 import express from "express";
 const router = express.Router();
-import {register, login,} from "../controllers/auth.controllers.ts";
+import { register, login } from "../controllers/auth.controllers.ts";
 import { authenticate } from "../middlewares/auth.middleware.ts";
 import { authorizedRoles } from "../middlewares/rbac.middleware.ts";
-
-
 
 /**
  * @swagger
@@ -36,10 +34,7 @@ import { authorizedRoles } from "../middlewares/rbac.middleware.ts";
  *       500:
  *         description: Internal Server Error
  */
-//@route POST /api/v1/auth/register
-//@desc Creates a new user
-//@access public
-router.post('/register',authenticate,authorizedRoles("Driver, Rider"), register);
+router.post("/register", register);
 
 /**
  * @swagger
@@ -70,20 +65,6 @@ router.post('/register',authenticate,authorizedRoles("Driver, Rider"), register)
  *     responses:
  *       200:
  *         description: User logged in successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 accessToken:
- *                   type: string
- *                 data:
- *                   type: object
- *                   description: User profile (excluding password)
  *       400:
  *         description: Invalid credentials or missing fields
  *       404:
@@ -91,9 +72,11 @@ router.post('/register',authenticate,authorizedRoles("Driver, Rider"), register)
  *       500:
  *         description: Internal Server Error
  */
-//@route POST /api/v1/auth/login
-//@desc Login a user
-//@access public
-router.post('/login',authenticate,authorizedRoles("Driver, Rider"), login);
+router.post("/login", login);
+
+// 👇 Example of a protected route (AFTER login)
+router.get("/profile", authenticate, authorizedRoles("Driver", "Rider"), (req, res) => {
+  res.json({ message: "Welcome to your dashboard!" });
+});
 
 export default router;

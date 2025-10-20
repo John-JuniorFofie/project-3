@@ -10,7 +10,8 @@ export interface IUser extends Document {
     password: string;
     role: UserRole;
     phoneNumber?:String;
-    isAvaialable?: boolean; // For drivers
+    isAvailable?: boolean; // For drivers
+    isAccountDeleted?:boolean;
     // currentLocatoin?:{
     //     type: "Point";
     //     coordinates: [number, number]; // [longitude, latitude]
@@ -45,9 +46,13 @@ const userSchema =new Schema<IUser>({
         required: false,
         trim: true,
     },
-    isAvaialable:{
+    isAvailable:{
         type: Boolean,
         default: false,
+    },
+    isAccountDeleted:{
+        type:Boolean,
+        default:false,
     },
     // currentLocation:{
     //     type: {
