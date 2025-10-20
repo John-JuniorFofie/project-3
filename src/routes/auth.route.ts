@@ -1,6 +1,8 @@
 import express from "express";
 const router = express.Router();
 import {register, login,} from "../controllers/auth.controllers.ts";
+import { authenticate } from "../middlewares/auth.middleware.ts";
+import { authorizedRoles } from "../middlewares/rbac.middleware.ts";
 
 
 
@@ -92,6 +94,6 @@ router.post('/register', register);
 //@route POST /api/v1/auth/login
 //@desc Login a user
 //@access public
-router.post('/login', login);
+router.post('/login',authenticate,authorizedRoles("Driver, Rider"), login);
 
 export default router;
