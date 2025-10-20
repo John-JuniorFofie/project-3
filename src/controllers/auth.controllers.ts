@@ -168,7 +168,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         delete userWithoutPassword.password;
 
         res.status(200).json({
-            success: true,
+            success: true,             
             message: "User logged in successfully",
             accessToken,
             data: userWithoutPassword
@@ -176,7 +176,9 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     } catch (error: unknown) {
         console.log({message: "Error logging in user", error: error});
-        res.status(500).json({success: false, error: "Internal Server Error"});
+        res.status(500).json({
+            success: false, 
+            error: "Internal Server Error"});
         return
     }
 }

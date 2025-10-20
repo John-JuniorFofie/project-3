@@ -39,7 +39,7 @@ import { authorizedRoles } from "../middlewares/rbac.middleware.ts";
 //@route POST /api/v1/auth/register
 //@desc Creates a new user
 //@access public
-router.post('/register', register);
+router.post('/register',authenticate,authorizedRoles("Driver, Rider"), register);
 
 /**
  * @swagger
