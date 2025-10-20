@@ -20,7 +20,7 @@ const PORT = process.env.PORT || 5000;
 
 // CORS configuration
 // app.use(cors(
-//   {
+//   { jj
 //     origin:(_origin, callback)=>callback(null,true),
 //     credentials:true,
 //   }
