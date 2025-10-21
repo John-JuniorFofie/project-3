@@ -3,9 +3,9 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import User from '../models/user.model.ts';
 import type{CustomJwtPayload} from '../types/authRequest.ts';
+import dotenv from "dotenv";
 
-
-require('dotenv').config();
+dotenv.config();
 
 
 //JWT

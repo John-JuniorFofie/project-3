@@ -1,4 +1,5 @@
-import  {Schema, Document, Model} from "mongoose";
+import { Schema, model, Document } from "mongoose";
+
 import   type{RideStatus} from "../types/ride.types.ts";
 
 export interface IRide extends Document {
