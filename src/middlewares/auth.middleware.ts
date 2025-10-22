@@ -1,38 +1,43 @@
-import type { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import type{ Response, Request, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
 
-export interface AuthRequest extends Request {
-  user?: string  | jwt.JwtPayload
+interface AuthRequest extends Request {
+    user?: string | jwt.JwtPayload
 }
 
-export const authenticate = (req: AuthRequest, res: Response, next: NextFunction):void => {
-  try {
-  const authHeader = req.headers.authorization?.split("")[1];
+export const authenticate = (req: AuthRequest, res: Response, next: NextFunction): void => {
+    try {
+        const token = req.headers.authorization?.split(" ")[1];
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-       res.status(401).json({
-        success:false,
-       message: "No token provided" 
-      });
-      return;
-    }
+        if (!token) {
+            res.status(401).json({
+                success: false,
+                message: "Unauthorized: No token provided"
+            });
+            return;
+        }
 
-  const token = authHeader.split(" ")[1];
-  
-   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET! as string, (error, user)=>{
-    (req as any).user = user;
-    next();
-   });
-  } catch(error){
-    res.status(400).json(
-      {
-      success:false,
-      message:"Invalid or expired token",
-      error:error
+        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET as string, (error, user) => {
+            if (error) {
+                res.status(403).json({
+                    success: false,
+                    message: "Forbidden: Invalid or expired token "
+                });
+                return;
+            }
+
+            (req as any).user = user;
+
+            next();
+        });
+
+    } catch (error) {
+        res.status(400).json(
+            {
+                success: false,
+                message: "Invalid or expired token",
+                error: error
+            }
+        )
     }
-    )
-   
-  }
 }
-
-   

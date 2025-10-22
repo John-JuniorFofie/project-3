@@ -1,11 +1,12 @@
 import type { Response, NextFunction } from "express";
 import { Ride } from "../models/ride.model.ts";
 import type { AuthRequest } from "../types/authRequest.ts";
+import mongoose from "mongoose";
 
 // Request a ride
 export const requestRide = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { pickuplocation, dropofflocation } = req.body;
+    const { pickup, dropoff } = req.body;
     const userId = req.user?.userId;
        if (!userId) {
       return res.status(401).json({
@@ -14,17 +15,17 @@ export const requestRide = async (req: AuthRequest, res: Response, next: NextFun
       });
     }
 
-    if (!pickuplocation || !dropofflocation) {
+    if (!pickup || !dropoff) {
       return res.status(400).json({
         success: false,
-        message: "pickuplocation and dropofflocation are required",
+        message: "pickup and dropoff are required",
       });
     }
-next();
+
  
     const ride = await Ride.create({
-      pickupLocation: pickuplocation,
-      dropOffLocation: dropofflocation,
+      pickup: pickup,
+      dropoff: dropoff,
       rider: userId,
     });
 
@@ -67,7 +68,7 @@ export const acceptRide = async (req: AuthRequest, res: Response): Promise<void>
     }
 
     ride.status = "accepted";
-    ride.driver = userId;
+    ride.driver = new mongoose.Types.ObjectId(userId);
     await ride.save();
 
     res.status(200).json({

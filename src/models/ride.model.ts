@@ -1,10 +1,10 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, model, Document,Types } from "mongoose";
 
 import   type{RideStatus} from "../types/ride.types.ts";
 
 export interface IRide extends Document {
-    rider: Schema.Types.ObjectId;   
-    driver?: Schema.Types.ObjectId | null;
+    rider: Types.ObjectId;   
+    driver?: Types.ObjectId | null;
      pickup: "String"; //{
 //     type: "point";
 //     coordinates: [number, number]; // [longitude, latitude]
@@ -59,7 +59,7 @@ const RideSchema = new Schema<IRide>({
     },
     status:{
         type:String,
-        enum:["requested", "accepted", "completed", "cancelled","statusChecked"],
+        enum:["requested", "accepted", "completed", "cancelled","statusChecked","in_progress"],
         default: "requested",
     },
     fare:Number,
