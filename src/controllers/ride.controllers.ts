@@ -3,29 +3,26 @@ import { Ride } from "../models/ride.model.ts";
 import type { AuthRequest } from "../types/authRequest.ts";
 import mongoose from "mongoose";
 
-// Request a ride
+// 🟢 Request a ride
 export const requestRide = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { pickup, dropoff } = req.body;
     const userId = req.user?.userId;
-       if (!userId) {
-      return res.status(401).json({
-        success: false,
-        message: "Unauthorized user",
-      });
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized user" });
     }
 
     if (!pickup || !dropoff) {
       return res.status(400).json({
         success: false,
-        message: "pickup and dropoff are required",
+        message: "Pickup and dropoff are required",
       });
     }
 
- 
     const ride = await Ride.create({
-      pickup: pickup,
-      dropoff: dropoff,
+      pickup,
+      dropoff,
       rider: userId,
     });
 
@@ -40,30 +37,20 @@ export const requestRide = async (req: AuthRequest, res: Response, next: NextFun
   }
 };
 
-// Accept a ride
+//  Accept a ride (Driver)
 export const acceptRide = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const rideId = req.params.id;
     const userId = req.user?.userId;
-       
-    if (!userId) {
-       res.status(401).json({
-        success: false,
-        message: "Unauthorized user",
-      }); return;
-    }
 
-    if (!rideId || !userId) {
-      res.status(400).json({
-         success: false, 
-         message: "Provide RideId and UserId" });
+    if (!userId) {
+      res.status(401).json({ success: false, message: "Unauthorized user" });
       return;
     }
 
     const ride = await Ride.findById(rideId);
     if (!ride) {
-      res.status(404).json({
-         success: false, message: "Ride not found" });
+      res.status(404).json({ success: false, message: "Ride not found" });
       return;
     }
 
@@ -82,25 +69,48 @@ export const acceptRide = async (req: AuthRequest, res: Response): Promise<void>
   }
 };
 
-// Complete a ride
+//  Start ride (in progress)
+export const startRide = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const rideId = req.params.id;
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      res.status(401).json({ success: false, message: "Unauthorized user" });
+      return;
+    }
+
+    const ride = await Ride.findById(rideId);
+    if (!ride) {
+      res.status(404).json({ success: false, message: "Ride not found" });
+      return;
+    }
+
+    ride.status = "in_progress";
+    ride.driver = new mongoose.Types.ObjectId(userId);
+    await ride.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Ride started successfully",
+      data: ride,
+    });
+  } catch (error) {
+    console.error({ message: "Error starting ride", error });
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
+//  Complete a ride
 export const completeRide = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const rideId = req.params.id;
     const userId = req.user?.userId;
-    
-        if (!userId) {
-       res.status(401).json({
-        success: false,
-        message: "Unauthorized user provide UserId",
-      }); return;
-    }
 
-    // if (!rideId || !userId) {
-    //   res.status(400).json({
-    //      success: false, 
-    //      message: "Provide RideId and UserId" });
-    //   return;
-    // }
+    if (!userId) {
+      res.status(401).json({ success: false, message: "Unauthorized user" });
+      return;
+    }
 
     const ride = await Ride.findById(rideId);
     if (!ride || ride.status !== "in_progress") {
@@ -125,26 +135,22 @@ export const completeRide = async (req: AuthRequest, res: Response): Promise<voi
   }
 };
 
-// Cancel a ride
+//  Cancel a ride
 export const cancelRide = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const rideId = req.params.id;
     const userId = req.user?.userId;
 
-         if (!userId) {
-       res.status(401).json({
-        success: false,
-        message: "Unauthorized user provide UserId",
-      }); return;
+    if (!userId) {
+      res.status(401).json({ success: false, message: "Unauthorized user" });
+      return;
     }
-    // if (!rideId || !userId) {
-    //   res.status(400).json({ success: false, message: "Provide RideId and UserId" });
-    //   return;
-    // }
 
     const ride = await Ride.findById(rideId);
     if (!ride) {
-      res.status(404).json({ success: false, message: "Ride not found" });
+      res.status(404).json({ 
+        success: false, 
+        message: "Ride not found" });
       return;
     }
 
@@ -179,8 +185,8 @@ export const cancelRide = async (req: AuthRequest, res: Response): Promise<void>
   }
 };
 
-// Get ride history
-export const getRideHistory = async (req: AuthRequest, res: Response, next: NextFunction) => {
+// 🧾 Get ride history
+export const getRideHistory = async (req: AuthRequest, res: Response,) => {
   try {
     const userId = req.user?.userId;
     const userRole = req.user?.role;
@@ -193,7 +199,7 @@ export const getRideHistory = async (req: AuthRequest, res: Response, next: Next
     }
 
     const rides =
-      userRole === "rider"
+      userRole === "Rider"
         ? await Ride.find({ rider: userId }).sort({ createdAt: -1 })
         : await Ride.find({ driver: userId }).sort({ createdAt: -1 });
 
