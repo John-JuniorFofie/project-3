@@ -12,6 +12,7 @@ export interface IUser extends Document {
     phoneNumber?:String;
     isAvailable?: boolean; // For drivers
     isAccountDeleted?:boolean;
+       passwordChangedAt?:Date;
     // currentLocatoin?:{
     //     type: "Point";
     //     coordinates: [number, number]; // [longitude, latitude]
@@ -54,6 +55,10 @@ const userSchema =new Schema<IUser>({
         type:Boolean,
         default:false,
     },
+      passwordChangedAt: { 
+        type: 
+        Date
+     },
     // currentLocation:{
     //     type: {
     //         type: String,

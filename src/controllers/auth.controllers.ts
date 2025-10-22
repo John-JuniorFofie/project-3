@@ -27,7 +27,7 @@ export const register = async ( req: Request, res: Response): Promise<void> => {
             email,
             password,
             role,
-            isAccountDeleted} = req.body;
+         } = req.body;
 
         //Validation
         if (!fullName || !email || !password) {
@@ -96,7 +96,7 @@ export const register = async ( req: Request, res: Response): Promise<void> => {
             email,
             password: hashedPassword,
             role,
-            isAccountDeleted
+            
         });
 
         res.status(201).json({
@@ -138,13 +138,13 @@ export const login = async (req: Request, res: Response): Promise<void> => {
             return
         }
 
-        // if (existingUser.isAccountDeleted) {
-        //     res.status(404).json({
-        //         success: false,
-        //         message: "Account has been deleted, please sign up again.",
-        //     });
-        //     return;
-        // }
+        if (existingUser.isAccountDeleted) {
+            res.status(404).json({
+                success: false,
+                message: "Account has been deleted, please sign up again.",
+            });
+            return;
+        }
 
         //Check Password
         const validPassword = await bcrypt.compare(password, existingUser.password);

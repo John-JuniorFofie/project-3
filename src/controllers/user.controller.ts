@@ -1,186 +1,140 @@
-// import type{Request, Response} from 'express';
-// import  User  from '../models/user.model.ts'
-// import type{ AuthRequest } from '../types/authRequest.ts'
-// import bcrypt from "bcrypt";
-// require('dotenv').config();
+import type { Response } from "express";
+import type { AuthRequest } from "../types/authRequest.ts";
+import User from "../models/user.model.ts";
+import bcrypt from "bcrypt";
+import dotenv from "dotenv";
 
-// //@route GET /api/v1/status/profile
-// //@desc Get Data/Profile/Details of Logged-in user
-// //@access Private
-// export const userData = async (req: AuthRequest, res: Response): Promise<void> => {
-//     try {
-//         const userId = req.user?.userId;
+dotenv.config();
 
-//         if (!userId) {
-//             res.status(401).json({success: false, message: "Unauthorized"})
-//             return;
-//         }
+/**
+ * @route   GET /api/v1/users/profile
+ * @desc    Get profile data of the logged-in user
+ * @access  Private (Driver or Rider)
+ */
+export const getUserProfile = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
 
-//         const user = await User.findById(userId).select('-password -__v');
-//         if (!user) {
-//             res.status(404).json({
-//                 success: false,
-//                 message: "User not found"
-//             });
-//             return;
-//         }
+    if (!userId) {
+      res.status(401).json({ success: false, message: "Unauthorized access" });
+      return;
+    }
 
-//         res.status(200).json({
-//             success: true,
-//             message: "User profile fetched successfully.",
-//             data: user
-//         })
+    const user = await User.findById(userId).select("-password -__v");
+    if (!user) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
 
+    res.status(200).json({
+      success: true,
+      message: "User profile fetched successfully",
+      data: user,
+    });
+  } catch (error) {
+    console.error({ message: "Error fetching user profile", error });
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
 
-//     } catch (error) {
-//         console.log({ message: "Error fetching user data", error });
-//         res.status(500).json({ success: false, error: "Internal Server Error" });
-//         return;
-//     }
-// }
+// * Update user details (e.g. username, email, etc.)
 
-// //@route PUT /api/v1/status/profile
-// //@desc Update Data/Profile/Details of Logged-in user
-// //@access Private
-// export const updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
-//     try {
-//         const userId = req.user?.userId;
-//         if (!userId) {
-//             res.status(401).json({success: false, message: "Unauthorized"})
-//             return;
-//         }
+/**
+ * @route   PUT /api/v1/users/change-password
+ * @desc    Change password of logged-in user
+ * @access  Private (Driver or Rider)
+ */
+export const changePassword = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
+    const { oldPassword, newPassword } = req.body;
 
-//         const { fullName, userName, yearGroup, occupation, About, profileImage, backgroundImage, affiliatedGroups } = req.body;
+    //  Ensure authentication
+    if (!userId) {
+      res.status(401).json({ success: false, message: "Unauthorized access." });
+      return;
+    }
 
-//         const user = await User.findById(userId);
-//         if (!user) {
-//             res.status(404).json({
-//                 success: false,
-//                 message: "User not found"
-//             });
-//             return;
-//         }
+    //  Validate input
+    if (!oldPassword || !newPassword) {
+      res.status(400).json({
+        success: false,
+        message: "Both old and new passwords are required.",
+      });
+      return;
+    }
 
-//         const updatedInfo = {
-//             fullName: fullName || user.fullName,
-//             userName: userName || user.userName,
-//         };
+    //  Find user and include password
+    const user = await User.findById(userId).select("+password");
+    if (!user || !user.password) {
+      res.status(404).json({
+        success: false,
+        message: "User not found or password not set.",
+      });
+      return;
+    }
 
-//         await User.findByIdAndUpdate(userId, updatedInfo, { new: true, runValidators: true });
+    //  Compare old password
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      res.status(400).json({
+        success: false,
+        message: "Old password is incorrect.",
+      });
+      return;
+    }
 
-//         res.status(200).json({
-//             success: true,
-//             message: "User profile updated successfully.",
-//             data: updatedInfo
-//         });
-//         return;
+    //  Hash new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
 
-//     }catch (error) {
-//         console.log({ message: "Error viewing this user's profile", error });
-//         res.status(500).json({ success: false, error: "Internal Server Error" });
-//         return;
-//     }
-// }
+    //  Update password and timestamp
+    user.password = hashedPassword;
+    (user as any).passwordChangedAt = new Date(); // 👈 safe cast if field optional
+    await user.save();
 
+    //  Success response
+    res.status(200).json({
+      success: true,
+      message: "Password updated successfully.",
+    });
+  } catch (error) {
+    console.error("Error changing password:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error.",
+    });
+  }
+};
 
-// //@route PUT /api/v1/status/update/password
-// //@desc Update Data/Profile/Details of Logged-in user
-// //@access Private
-// export const changePassword = async (req: AuthRequest, res: Response): Promise<void> => {
-//     try {
-//         const userId = req.user?.userId;
-//         if (!userId) {
-//             res.status(401).json({success: false, message: "Unauthorized"})
-//             return;
-//         }
+/**
+ * @route   DELETE /api/v1/users/delete
+ * @desc    Soft delete user account (mark as deleted)
+ * @access  Private (Driver or Rider)
+ */
+export const deleteAccount = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json({ success: false, message: "Unauthorized access" });
+      return;
+    }
 
-//         const { oldPassword, newPassword } = req.body;
-//         if (!oldPassword || !newPassword) {
-//             res.status(400).json({
-//                 success: false,
-//                 message: "Old password and new password are required"
-//             });
-//             return;
-//         }
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
 
-//         const user = await User.findById(userId).select('+password');
-//         if (!user) {
-//             res.status(404).json({
-//                 success: false,
-//                 message: "User not found"
-//             });
-//             return;
-//         }
+    user.isAccountDeleted = true;
+    await user.save();
 
-//         if(!user.password) {
-//             res.status(400).json({
-//                 success: false,
-//                 message: "User does not have a password"
-//             });
-//         }
-
-//         const isPasswordValid = await bcrypt.compare(oldPassword, user.password)
-//         if (!isPasswordValid) {
-//             res.status(400).json({
-//                 success: false,
-//                 message: "Invalid old password"
-//             });
-//             return;
-//         }
-
-//         const salt = await bcrypt.genSalt(10);
-//         const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-//         user.passwordChangedAt = new Date();
-//         await User.findByIdAndUpdate(userId, { password: hashedPassword }, { new: true, runValidators: true });
-
-
-//         res.status(200).json({
-//             success: true,
-//             message: "Password updated successfully."
-//         });
-//         return;
-
-//     }catch (error) {
-//         console.log({ message: "Error changing password", error });
-//         res.status(500).json({ success: false, error: "Internal Server Error" });
-//         return;
-//     }
-// }
-
-
-// //@route DELETE /api/v1/status/account/delete
-// //@desc Deactivate/Delete account (Soft Delete)
-// //@access Private
-// export const deleteAccount = async(req: AuthRequest, res: Response): Promise<void> => {
-//     try {
-//         const userId = req.user?.userId;
-//         if (!userId) {
-//             res.status(401).json({success: false, message: "Unauthorized"})
-//             return;
-//         }
-
-//         const user = await User.findById(userId);
-//         if (!user) {
-//             res.status(404).json({
-//                 success: false,
-//                 message: "User not found"
-//             });
-//             return;
-//         }
-
-//         user.isAccountDeleted = true;
-//         await user.save();
-
-//         res.status(200).json({
-//             success: true,
-//             message: "Account deleted successfully."
-//         });
-//         return;
-
-//     }catch (error) {
-//         console.log({ message: "Error deleting account", error });
-//         res.status(500).json({ success: false, error: "Internal Server Error" });
-//         return;
-//     }
-// }
+    res.status(200).json({
+      success: true,
+      message: "Account deleted successfully",
+    });
+  } catch (error) {
+    console.error({ message: "Error deleting account", error });
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
