@@ -5,10 +5,11 @@ import {
   startRide,
   completeRide,
   cancelRide,
+  getRideHistory,
 } from "../controllers/ride.controllers.ts";
 import { authenticate } from "../middlewares/auth.middleware.ts";
 import { authorizedRoles } from "../middlewares/rbac.middleware.ts";
-import { start } from "repl";
+// import { start } from "repl";
 
 const router = Router();
 
@@ -24,7 +25,13 @@ router.patch("/:id/start",authenticate,authorizedRoles("Driver"),startRide);
 // Driver completes ride
 router.patch("/:id/complete",authenticate,authorizedRoles("Driver"), completeRide);
 
-// Rider cancels ride
+// Rider or Driver cancels ride
 router.patch("/:id/cancel",authenticate,authorizedRoles("Driver,Rider"), cancelRide);
+
+//get ride history
+router.get("/:id/history",authenticate,authorizedRoles("Driver,Rider"), getRideHistory);
+
+
+
 
 export default router;

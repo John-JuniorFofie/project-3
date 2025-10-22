@@ -76,13 +76,17 @@ export const startRide = async (req: AuthRequest, res: Response): Promise<void> 
     const userId = req.user?.userId;
 
     if (!userId) {
-      res.status(401).json({ success: false, message: "Unauthorized user" });
+      res.status(401).json({ 
+        success: false, 
+        message: "Unauthorized user" });
       return;
     }
 
     const ride = await Ride.findById(rideId);
     if (!ride) {
-      res.status(404).json({ success: false, message: "Ride not found" });
+      res.status(404).json({ 
+        success: false, 
+        message: "Ride not found" });
       return;
     }
 
@@ -96,8 +100,11 @@ export const startRide = async (req: AuthRequest, res: Response): Promise<void> 
       data: ride,
     });
   } catch (error) {
-    console.error({ message: "Error starting ride", error });
-    res.status(500).json({ success: false, error: "Internal server error" });
+    console.error({
+       message: "Error starting ride", error });
+    res.status(500).json({
+       success: false, 
+       error: "Internal server error" });
   }
 };
 
@@ -185,7 +192,7 @@ export const cancelRide = async (req: AuthRequest, res: Response): Promise<void>
   }
 };
 
-// 🧾 Get ride history
+//  Get ride history
 export const getRideHistory = async (req: AuthRequest, res: Response,) => {
   try {
     const userId = req.user?.userId;
@@ -200,8 +207,10 @@ export const getRideHistory = async (req: AuthRequest, res: Response,) => {
 
     const rides =
       userRole === "Rider"
-        ? await Ride.find({ rider: userId }).sort({ createdAt: -1 })
-        : await Ride.find({ driver: userId }).sort({ createdAt: -1 });
+        ? await Ride.find({ 
+          rider: userId }).sort({ createdAt: -1 })
+        : await Ride.find({
+           driver: userId }).sort({ createdAt: -1 });
 
     if (!rides.length) {
       return res.status(404).json({
