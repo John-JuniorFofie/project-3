@@ -22,7 +22,7 @@ const options = {
            
             {
                 url: "http://localhost:5000/",
-                description: "Live server",
+                description: "local host",
             }
         ],
         components: {
