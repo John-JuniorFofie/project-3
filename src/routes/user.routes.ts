@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
   getUserProfile,
-//   updateUserProfile,
+  // updateUserProfile,
   changePassword,
   deleteAccount,
 } from "../controllers/user.controller.ts";

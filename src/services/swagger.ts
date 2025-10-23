@@ -4,9 +4,9 @@ const options = {
     swaggerDefinition: {
         openapi: "3.0.0",
         info: {
-            title: "Apollinia HR Management System Backend API",
+            title: "Ride Hailing system API Documentation",
             version: "1.0.0",
-            description: "This is the backend API documentation for the Apollinia HR Management System, built with Node.js, Express, and MongoDB.",
+            description: "This is the backend API documentation for the ride hailing system, built with Node.js, Express, and MongoDB.",
         },
         contact: {
             name: "John Fofie Junior",

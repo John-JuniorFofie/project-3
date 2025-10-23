@@ -5,8 +5,8 @@ import cors from "cors";
 import connectDB from "./config/db.ts";
 import morgan from "morgan"; 
 import indexRouter from "./routes/index.route.ts"
-// import swagger from "swagger-ui-express";
-// import swaggerSpec from "./services/swagger.ts";
+import swagger from "swagger-ui-express";
+import swaggerSpec from "./services/swagger.ts";
 // import { authenticate } from "./middlewares/auth.middleware.ts";
 // import employeeRouter from "./Routes/employee.routes.ts";
 
@@ -27,14 +27,14 @@ const PORT = process.env.PORT || 5000;
 // ));
 app.use(morgan("dev"));
 app.use(express.json());
-// app.use("/api-docs", swagger.serve, swagger.setup(swaggerSpec));
+app.use("/api-docs", swagger.serve, swagger.setup(swaggerSpec));
 
-// app.use((req, res, next) => {
-//   console.log(req.method, req.url);
-//   next();
-// });
+app.use((req, res, next) => {
+  console.log(req.method, req.url);
+  next();
+});
 
-//Routes
+
 
 app.get("/", (req: Request, res: Response) => {
   res.status(200).send("The server is running properly.");

@@ -1,6 +1,7 @@
 import express from "express";
 import authRouter from "./auth.route.ts";
 import rideRouter from "./ride.routes.ts";
+import userRouter from "./user.routes.ts";
 // import userRouter from "./user.routes.ts";
 // import rideRouter from "./ride.routes.ts";
 
@@ -13,7 +14,7 @@ rootRouter.use('/auth',authRouter);
 
 
 //user routes
-// rootRouter.use('/status',userRouter);
+rootRouter.use('/status',userRouter);
 
 //ride routes
 rootRouter.use('/rides',rideRouter);
