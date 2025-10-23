@@ -51,7 +51,9 @@ export const changePassword = async (req: AuthRequest, res: Response): Promise<v
 
     //  Ensure authentication
     if (!userId) {
-      res.status(401).json({ success: false, message: "Unauthorized access." });
+      res.status(401).json({ 
+        success: false, 
+        message: "Unauthorized access." });
       return;
     }
 
@@ -114,6 +116,7 @@ export const changePassword = async (req: AuthRequest, res: Response): Promise<v
  */
 export const deleteAccount = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
+   
     const userId = req.user?.userId;
     if (!userId) {
       res.status(401).json({ success: false, message: "Unauthorized access" });
@@ -138,3 +141,5 @@ export const deleteAccount = async (req: AuthRequest, res: Response): Promise<vo
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
+

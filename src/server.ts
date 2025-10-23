@@ -40,10 +40,10 @@ app.get("/", (req: Request, res: Response) => {
   res.status(200).send("The server is running properly.");
 });
 
+app.use(express.json());
 
 
-
-// app.use("/api/v1", employeeRouter);
+// Routes
 app.use("/api/v1", indexRouter);
 
 app.listen(PORT, () => {
