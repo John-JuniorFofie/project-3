@@ -35,10 +35,10 @@ const router = express.Router();
  *             properties:
  *               fullName:
  *                 type: string
- *                 example: "Jane Doe"
+ *                 example: "John fofie"
  *               userName:
  *                 type: string
- *                 example: "jane_doe"
+ *                 example: "john_fofie"
  *               studentStatus:
  *                 type: string
  *                 enum: [Student, Graduate, Other]
@@ -46,7 +46,7 @@ const router = express.Router();
  *               email:
  *                 type: string
  *                 format: email
- *                 example: "jane.doe@example.com"
+ *                 example: "john.fofie@example.com"
  *               password:
  *                 type: string
  *                 format: password
@@ -61,8 +61,8 @@ const router = express.Router();
  *               message: "User registered successfully."
  *               data:
  *                 id: "66ef0c7892adf92b1c33ab1a"
- *                 email: "jane.doe@example.com"
- *                 userName: "jane_doe"
+ *                 email: "john.fofie@example.com"
+ *                 userName: "john_fofie"
  *       200:
  *         description: Account restored successfully.
  *         content:
@@ -108,7 +108,7 @@ router.post("/register", register);
  *               email:
  *                 type: string
  *                 format: email
- *                 example: "jane.doe@example.com"
+ *                 example: "jane.fofie@example.com"
  *               password:
  *                 type: string
  *                 format: password
@@ -124,7 +124,7 @@ router.post("/register", register);
  *               token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
  *               user:
  *                 id: "66ef0c7892adf92b1c33ab1a"
- *                 email: "jane.doe@example.com"
+ *                 email: "john.fofie@example.com"
  *                 role: "Rider"
  *       400:
  *         description: Invalid credentials or missing fields.
