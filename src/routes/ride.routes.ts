@@ -16,7 +16,7 @@ const router = Router();
 /**
  * @swagger
  * tags:
- *   name: user
+ *   name: Ride
  *   description: API endpoints for ride
  */
 
