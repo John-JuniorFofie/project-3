@@ -3,14 +3,16 @@ import { Ride } from "../models/ride.model.ts";
 import type { AuthRequest } from "../types/authRequest.ts";
 import mongoose from "mongoose";
 
-// 🟢 Request a ride
+//  Request a ride
 export const requestRide = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { pickup, dropoff } = req.body;
     const userId = req.user?.userId;
 
     if (!userId) {
-      return res.status(401).json({ success: false, message: "Unauthorized user" });
+      return res.status(401).json({ 
+        success: false, 
+        message: "Unauthorized user" });
     }
 
     if (!pickup || !dropoff) {

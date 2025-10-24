@@ -183,10 +183,7 @@ router.post("/login", login);
  *               success: false
  *               message: "Access denied."
  */
-router.get(
-  "/profile",
-  authenticate,
-  authorizedRoles("Driver", "Rider"),
+router.get("/profile",authenticate,authorizedRoles("Driver", "Rider"),
   (req, res) => {
     res.json({ message: "Welcome to your dashboard!" });
   }

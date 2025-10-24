@@ -16,13 +16,17 @@ export const getUserProfile = async (req: AuthRequest, res: Response): Promise<v
     const userId = req.user?.userId;
 
     if (!userId) {
-      res.status(401).json({ success: false, message: "Unauthorized access" });
+      res.status(401).json({ 
+        success: false, 
+        message: "Unauthorized access" });
       return;
     }
 
     const user = await User.findById(userId).select("-password -__v");
     if (!user) {
-      res.status(404).json({ success: false, message: "User not found" });
+      res.status(404).json({
+         success: false, 
+         message: "User not found" });
       return;
     }
 
@@ -37,8 +41,115 @@ export const getUserProfile = async (req: AuthRequest, res: Response): Promise<v
   }
 };
 
-// * Update user details (e.g. username, email, etc.)
+// * Update user details (e.g. username, email, password etc.)
 
+// 
+/**
+ * @route   PUT /api/v1/users/change-email
+ * @desc    Change password of logged-in user
+ * @access  Private (Driver or Rider)
+ */
+
+export const changeEmail = async (req:AuthRequest, res:Response): Promise<void> =>{
+  try{
+    const userId = req.user?.userId;
+    const {oldEmail, newEmail} = req.body;
+    //ensure authentication
+    if (!userId){
+    res.status(401).json({
+      success:false,
+      message:"Unauthorized acess"
+    });
+    return;
+    }
+    //validate input 
+    if(!oldEmail || !newEmail){
+      res.status(400).json({
+        success:false,
+        message:"Provide oldEmail and newEmail"
+      });return;
+    }
+    //find user
+
+    const user = await User.findById(userId).select("email");
+    if(!user|| user.email){
+      res.status(404).json({
+        success:false,
+        message:"user not found or email not set"
+      });
+      return;
+    }
+    //update email
+      user.email = newEmail;
+      (user as any).passwordChangedAt = new Date(); 
+      await user.save();
+
+    res.status(201).json({
+      success:true,
+      message: "email updated "
+    });return;
+  } catch (error){
+    console.log("error changing password", error);
+    res.status(500).json({
+      success:false,
+      message:"internal server error"
+    });
+
+  }
+}
+// 
+// * @route   PUT /api/v1/users/change username
+//  * @desc    Change password of logged-in user
+//  * @access  Private (Driver or Rider)
+//  */ 
+
+export const changeUsername = async (req:AuthRequest, res:Response): Promise<void> =>{
+  try{
+    const userId = req.user?.userId;
+    const {oldUsername, newUsername} = req.body;
+    //ensure authentication
+    if (!userId){
+    res.status(401).json({
+      success:false,
+      message:"Unauthorized acess"
+    });
+    return;
+    }
+    //validate input 
+    if(!oldUsername || !newUsername){
+      res.status(400).json({
+        success:false,
+        message:"oldUsername and newUsername"
+      });return;
+    }
+    //find user
+
+    const user = await User.findById(userId).select("fullName");
+    if(!user|| user.email){
+      res.status(404).json({
+        success:false,
+        message:"user not found or email not set"
+      });
+      return;
+    }
+    //update email
+      user.fullName = newUsername;
+      (user as any).userNameChangedAt = new Date(); 
+      await user.save();
+
+    res.status(201).json({
+      success:true,
+      message: "userName updated "
+    });return;
+  } catch (error){
+    console.log("error changing userName", error);
+    res.status(500).json({
+      success:false,
+      message:"internal server error"
+    });
+
+  }
+}
 /**
  * @route   PUT /api/v1/users/change-password
  * @desc    Change password of logged-in user
@@ -119,13 +230,17 @@ export const deleteAccount = async (req: AuthRequest, res: Response): Promise<vo
    
     const userId = req.user?.userId;
     if (!userId) {
-      res.status(401).json({ success: false, message: "Unauthorized access" });
+      res.status(401).json({ 
+        success: false, 
+        message: "Unauthorized access" });
       return;
     }
 
     const user = await User.findById(userId);
     if (!user) {
-      res.status(404).json({ success: false, message: "User not found" });
+      res.status(404).json({ 
+        success: false, 
+        message: "User not found" });
       return;
     }
 
