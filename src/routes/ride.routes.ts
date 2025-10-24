@@ -16,18 +16,20 @@ const router = Router();
 /**
  * @swagger
  * tags:
- *   name: Ride
- *   description: API endpoints for ride
+ *   name: Rides
+ *   description: Ride management for Drivers and Riders
  */
 
 /**
  * @swagger
- * /api/v1/user/request:
+ * /api/v1/rides/request:
  *   post:
  *     tags:
- *       - Ride
- *     summary: request a ride
- *     description: user request a ride by providing the pickup and dropoff location
+ *       - Rides
+ *     summary: Request a ride
+ *     description: Allows a Rider to request a new ride by providing pickup and drop-off details.
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -35,516 +37,226 @@ const router = Router();
  *           schema:
  *             type: object
  *             required:
- *               - pickup
- *               - dropoff
+ *               - pickupLocation
+ *               - dropoffLocation
  *             properties:
- *               pickup:
+ *               pickupLocation:
  *                 type: string
- *                  example: "john_fofie"
- *               dropoff:
+ *                 example: "Kwame Nkrumah Circle, Accra"
+ *               dropoffLocation:
  *                 type: string
- *                  example: "john_fofie"
+ *                 example: "University of Ghana, Legon"
+ *               notes:
+ *                 type: string
+ *                 example: "Please hurry, I’m running late for class."
  *     responses:
- *   
- *       200:
- *         description: requested  ride.
+ *       201:
+ *         description: Ride request created successfully.
  *         content:
  *           application/json:
  *             example:
  *               success: true
  *               message: "Ride requested successfully."
+ *               data:
+ *                 rideId: "670a3f5c4b9e3a001c23af10"
+ *                 status: "pending"
+ *                 pickupLocation: "Kwame Nkrumah Circle"
+ *                 dropoffLocation: "University of Ghana"
+ *       400:
+ *         description: Missing required fields.
  *       401:
- *         description:pickup and dropoff required .
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "unauthorized user."
- *        404:
- *         description: couldn't load user.
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "user not found ."
+ *         description: Unauthorized access.
  *       500:
- *         description: couldn't request ride.
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "Internal Server Error"
+ *         description: Internal server error.
  */
 router.post("/request", authenticate,authorizedRoles("Rider"), requestRide);
-
-
 /**
  * @swagger
- * /api/v1/user/accept:
- *   post:
+ * /api/v1/rides/{id}/accept:
+ *   patch:
  *     tags:
- *       - Ride
- *     summary: accept a ride
- *     description: driver accept a ride by providing the pickup and dropoff location
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - pickup
- *               - dropoff
- *             properties:
- *               pickup:
- *                 type: string
- *                  example: "john_fofie"
- *               dropoff:
- *                 type: string
- *                  example: "john_fofie"
+ *       - Rides
+ *     summary: Accept a ride request
+ *     description: Allows a Driver to accept a pending ride request.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Ride ID
+ *         schema:
+ *           type: string
+ *           example: "670a3f5c4b9e3a001c23af10"
  *     responses:
- *   
  *       200:
- *         description: accepted  ride.
+ *         description: Ride accepted successfully.
  *         content:
  *           application/json:
  *             example:
  *               success: true
  *               message: "Ride accepted successfully."
+ *               data:
+ *                 status: "accepted"
+ *                 driverId: "66ef0c7892adf92b1c33ab1a"
+ *       400:
+ *         description: Ride already accepted or invalid state.
  *       401:
- *         description:pickup and dropoff required .
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "unauthorized user."
- *        404:
- *         description: couldn't load user.
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "user not found ."
- *       500:
- *         description: couldn't request ride.
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "Internal Server Error"
+ *         description: Unauthorized access.
+ *       404:
+ *         description: Ride not found.
  */
+
+
 router.patch("/:id/accept",authenticate,authorizedRoles("Driver"), acceptRide);
 
 /**
  * @swagger
- * /api/v1/user/request:
- *   post:
+ * /api/v1/rides/{id}/start:
+ *   patch:
  *     tags:
- *       - Ride
- *     summary: start a ride
- *     description: Driver start a ride by providing the rideId and the userid
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - UserId
- *               - RideId
- *               - Role
- *             properties:
- *               userId:
- *                 type: string
- *                  example: "12y3di4r83984rh449r9y484785"
- *               RideId:
- *                 type: string
- *                  example: "12y3di4r83984rh449r9y484785"
- *               Role: 
- *               type: string,
- *                example: "Driver"
+ *       - Rides
+ *     summary: Start a ride
+ *     description: Allows a Driver to start the ride once the Rider has been picked up.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Ride ID
+ *         schema:
+ *           type: string
+ *           example: "670a3f5c4b9e3a001c23af10"
  *     responses:
- *   
  *       200:
- *         description: started ride.
+ *         description: Ride started successfully.
  *         content:
  *           application/json:
  *             example:
  *               success: true
- *               message: "Ride requested successfully."
+ *               message: "Ride started."
+ *               data:
+ *                 status: "in-progress"
+ *       400:
+ *         description: Ride not accepted yet.
  *       401:
- *         description:RideId  required .
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "unauthorized user."
- *        404:
- *         description: couldn't load user.
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "user not found ."
- *       500:
- *         description: couldn't request ride.
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "Internal Server Error"
+ *         description: Unauthorized access.
+ *       404:
+ *         description: Ride not found.
  */
-router.patch("/:id/start",authenticate,authorizedRoles("Driver"),startRide);
+router.patch("/:id/start",authenticate,authorizedRoles("Driver"), startRide);
 /**
  * @swagger
- * /api/v1/user/accept:
- *   post:
+ * /api/v1/rides/{id}/complete:
+ *   patch:
  *     tags:
- *       - Ride
- *     summary: accept a ride
- *     description: driver accept a ride by providing the pickup and dropoff location
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - pickup
- *               - dropoff
- *             properties:
- *               pickup:
- *                 type: string
- *                  example: "john_fofie"
- *               dropoff:
- *                 type: string
- *                  example: "john_fofie"
+ *       - Rides
+ *     summary: Complete a ride
+ *     description: Allows a Driver to mark a ride as completed once the Rider is dropped off.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Ride ID
+ *         schema:
+ *           type: string
+ *           example: "670a3f5c4b9e3a001c23af10"
  *     responses:
- *   
  *       200:
- *         description: accepted  ride.
- *         content:
- *           application/json:
- *             example:
- *               success: true
- *               message: "Ride accepted successfully."
- *       401:
- *         description:pickup and dropoff required .
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "unauthorized user."
- *        404:
- *         description: couldn't load user.
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "user not found ."
- *       500:
- *         description: couldn't request ride.
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "Internal Server Error"
- */
-router.patch("/:id/accept",authenticate,authorizedRoles("Driver"), acceptRide);
-
-/**
- * @swagger
- * /api/v1/user/complete:
- *   post:
- *     tags:
- *       - Ride
- *     summary: complete a ride
- *     description: Driver end a ride by providing the rideId and the userid
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - UserId
- *               - RideId
- *               - Role
- *             properties:
- *               userId:
- *                 type: string
- *                  example: "12y3di4r83984rh449r9y484785"
- *               RideId:
- *                 type: string
- *                  example: "12y3di4r83984rh449r9y484785"
- *               Role: 
- *               type: string,
- *                example: "Driver"
- *     responses:
- *   
- *       200:
- *         description: completed ride.
+ *         description: Ride completed successfully.
  *         content:
  *           application/json:
  *             example:
  *               success: true
  *               message: "Ride completed successfully."
+ *               data:
+ *                 status: "completed"
+ *                 fare: 25.50
+ *       400:
+ *         description: Ride not started yet or already completed.
  *       401:
- *         description:RideId  required .
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "unauthorized user."
- *        404:
- *         description: couldn't load ride.
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "user not found ."
- *       500:
- *         description: couldn't complete ride.
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "Internal Server Error"
+ *         description: Unauthorized access.
+ *       404:
+ *         description: Ride not found.
  */
-
 router.patch("/:id/complete",authenticate,authorizedRoles("Driver"), completeRide);
-
-
 /**
  * @swagger
- * /api/v1/user/accept:
- *   post:
+ * /api/v1/rides/{id}/cancel:
+ *   patch:
  *     tags:
- *       - Ride
- *     summary: accept a ride
- *     description: driver accept a ride by providing the pickup and dropoff location
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - pickup
- *               - dropoff
- *             properties:
- *               pickup:
- *                 type: string
- *                  example: "john_fofie"
- *               dropoff:
- *                 type: string
- *                  example: "john_fofie"
+ *       - Rides
+ *     summary: Cancel a ride
+ *     description: Allows either the Driver or Rider to cancel a ride before it’s completed.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Ride ID
+ *         schema:
+ *           type: string
+ *           example: "670a3f5c4b9e3a001c23af10"
  *     responses:
- *   
  *       200:
- *         description: accepted  ride.
- *         content:
- *           application/json:
- *             example:
- *               success: true
- *               message: "Ride accepted successfully."
- *       401:
- *         description:pickup and dropoff required .
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "unauthorized user."
- *        404:
- *         description: couldn't load user.
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "user not found ."
- *       500:
- *         description: couldn't request ride.
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "Internal Server Error"
- */
-router.patch("/:id/accept",authenticate,authorizedRoles("Driver"), acceptRide);
-
-/**
- * @swagger
- * /api/v1/user/cancel:
- *   post:
- *     tags:
- *       - Ride
- *     summary: cancela ride
- *     description: User cancels a ride by providing the rideId and the userid
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - UserId
- *               - RideId
- *               - Role
- *             properties:
- *               userId:
- *                 type: string
- *                  example: "12y3di4r83984rh449r9y484785"
- *               RideId:
- *                 type: string
- *                  example: "12y3di4r83984rh449r9y484785"
- *               Role: 
- *               type: string,
- *                example: "Driver, Rider"
- *     responses:
- *   
- *       200:
- *         description: cancelled ride.
+ *         description: Ride cancelled successfully.
  *         content:
  *           application/json:
  *             example:
  *               success: true
  *               message: "Ride cancelled successfully."
+ *               data:
+ *                 status: "cancelled"
+ *       400:
+ *         description: Cannot cancel completed ride.
  *       401:
- *         description:RideId  required .
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "unauthorized user."
- *        404:
- *         description: couldn't load user.
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "user not found ."
- *       500:
- *         description: couldn't request ride.
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "Internal Server Error"
+ *         description: Unauthorized access.
+ *       404:
+ *         description: Ride not found.
  */
 router.patch("/:id/cancel",authenticate,authorizedRoles("Driver,Rider"), cancelRide);
 
 /**
  * @swagger
- * /api/v1/user/accept:
- *   post:
+ * /api/v1/rides/{id}/history:
+ *   get:
  *     tags:
- *       - Ride
- *     summary: accept a ride
- *     description: driver accept a ride by providing the pickup and dropoff location
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - pickup
- *               - dropoff
- *             properties:
- *               pickup:
- *                 type: string
- *                  example: "john_fofie"
- *               dropoff:
- *                 type: string
- *                  example: "john_fofie"
+ *       - Rides
+ *     summary: Get ride history
+ *     description: Fetches the history of a ride by its ID for either the Rider or Driver.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Ride ID
+ *         schema:
+ *           type: string
+ *           example: "670a3f5c4b9e3a001c23af10"
  *     responses:
- *   
  *       200:
- *         description: accepted  ride.
- *         content:
- *           application/json:
- *             example:
- *               success: true
- *               message: "Ride accepted successfully."
- *       401:
- *         description:pickup and dropoff required .
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "unauthorized user."
- *        404:
- *         description: couldn't load user.
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "user not found ."
- *       500:
- *         description: couldn't request ride.
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "Internal Server Error"
- */
-router.patch("/:id/accept",authenticate,authorizedRoles("Driver"), acceptRide);
-
-/**
- * @swagger
- * /api/v1/user/history:
- *   post:
- *     tags:
- *       - Ride
- *     summary: fetch ride history
- *     description: user fetched a ride history by providing the UserId and Role
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - UserId
- *               - RideId
- *               - Role
- *             properties:
- *               userId:
- *                 type: string
- *                  example: "12y3di4r83984rh449r9y484785"
- *               Role: 
- *               type: string,
- *                example: "Driver"
- *     responses:
- *   
- *       200:
- *         description: fetched ride history.
+ *         description: Ride history fetched successfully.
  *         content:
  *           application/json:
  *             example:
  *               success: true
  *               message: "Ride history fetched successfully."
+ *               data:
+ *                 rideId: "670a3f5c4b9e3a001c23af10"
+ *                 status: "completed"
+ *                 pickupLocation: "Accra Mall"
+ *                 dropoffLocation: "Legon Campus"
+ *                 fare: 30.0
+ *                 date: "2025-10-14T09:30:00Z"
  *       401:
- *         description:userId and Role required.
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "unauthorized user."
- *        404:
- *         description: couldn't load user.
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "user not found ."
- *       500:
- *         description: couldn't load ride history.
- *         content:
- *           application/json:
- *             example:
- *               success: false
- *               message: "Internal Server Error"
+ *         description: Unauthorized access.
+ *       404:
+ *         description: Ride not found.
  */
 router.get("/:id/history",authenticate,authorizedRoles("Driver,Rider"), getRideHistory);
 export default router;
