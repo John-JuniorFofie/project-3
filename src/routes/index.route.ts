@@ -14,7 +14,7 @@ rootRouter.use('/auth',authRouter);
 
 
 //user routes
-rootRouter.use('/status',userRouter);
+rootRouter.use('/users',userRouter);
 
 //ride routes
 rootRouter.use('/rides',rideRouter);
